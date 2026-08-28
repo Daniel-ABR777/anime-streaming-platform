@@ -32,7 +32,7 @@ export function DashboardHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-[#f7f8fc]/85 backdrop-blur-xl dark:border-white/5 dark:bg-[#0b0f1a]/85">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
-        <Link href="/dashboard" className="flex shrink-0 items-center gap-2.5">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-600 shadow-lg shadow-violet-500/30">
             <svg viewBox="0 0 24 24" className="h-4 w-4 text-white" fill="currentColor" aria-hidden="true">
               <path d="M8 5.5v13l11-6.5-11-6.5Z" />

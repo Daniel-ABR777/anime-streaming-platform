@@ -26,7 +26,7 @@ export function RegisterPage() {
       return;
     }
     setError("");
-    router.push("/dashboard");
+    router.push("/");
   }
 
   return (
@@ -140,7 +140,7 @@ export function RegisterPage() {
 
       <div className="mt-3.5 text-center sm:mt-4">
         <Link
-          href="/"
+          href="/signin"
           className="inline-flex items-center gap-2 text-sm font-semibold text-violet-600 transition hover:text-violet-500 dark:text-violet-300 dark:hover:text-violet-200"
         >
           Sign in
