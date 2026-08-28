@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Poster } from "@/components/dashboard/poster";
 import { ProgressRing } from "@/components/profile/progress-ring";
+import {
+  useProfileTab,
+  type ProfileTabId,
+} from "@/components/profile/profile-tab-context";
 import {
   profileFavorites,
   profileUser,
@@ -11,9 +15,7 @@ import {
   type HistoryStatus,
 } from "@/data/profile";
 
-type TabId = "history" | "watchlist" | "favorites" | "settings";
-
-const tabs: { id: TabId; label: string; icon: typeof HistoryTabIcon }[] = [
+const tabs: { id: ProfileTabId; label: string; icon: typeof HistoryTabIcon }[] = [
   { id: "history", label: "Watch History", icon: HistoryTabIcon },
   { id: "watchlist", label: "Watchlist", icon: StarTabIcon },
   { id: "favorites", label: "Favorites", icon: HeartTabIcon },
@@ -31,7 +33,7 @@ function statusStyles(status: HistoryStatus) {
 }
 
 export function ProfileContent() {
-  const [tab, setTab] = useState<TabId>("history");
+  const { tab, setTab } = useProfileTab();
   const { stats } = profileUser;
 
   return (
