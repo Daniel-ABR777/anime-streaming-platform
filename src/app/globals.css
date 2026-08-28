@@ -1,26 +1,87 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-nova-purple: #8b5cf6;
+  --color-nova-violet: #7c3aed;
+  --color-nova-deep: #5b21b6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Auth glass card */
+.auth-card {
+  background: rgb(255 255 255 / 0.78);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  box-shadow:
+    0 25px 60px rgb(88 28 135 / 0.12),
+    0 0 0 1px rgb(255 255 255 / 0.35) inset;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.dark .auth-card {
+  background: rgb(12 8 32 / 0.62);
+  border: 1px solid rgb(139 92 246 / 0.22);
+  box-shadow:
+    0 30px 80px rgb(0 0 0 / 0.55),
+    0 0 0 1px rgb(255 255 255 / 0.04) inset;
+}
+
+.auth-input {
+  background: rgb(255 255 255 / 0.9);
+  border: 1px solid rgb(226 232 240 / 0.95);
+  color: #0f172a;
+}
+
+.auth-input::placeholder {
+  color: #94a3b8;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: rgb(139 92 246 / 0.55);
+  box-shadow: 0 0 0 3px rgb(139 92 246 / 0.15);
+}
+
+.dark .auth-input {
+  background: rgb(8 6 24 / 0.55);
+  border: 1px solid rgb(139 92 246 / 0.18);
+  color: #f8fafc;
+}
+
+.dark .auth-input::placeholder {
+  color: #64748b;
+}
+
+.dark .auth-input:focus {
+  border-color: rgb(167 139 250 / 0.55);
+  box-shadow: 0 0 0 3px rgb(139 92 246 / 0.2);
+}
+
+.auth-login-btn {
+  background: linear-gradient(90deg, #a855f7 0%, #7c3aed 55%, #6d28d9 100%);
+  box-shadow: 0 10px 28px rgb(124 58 237 / 0.35);
+}
+
+.auth-login-btn:hover {
+  filter: brightness(1.05);
+}
+
+.auth-login-btn:active {
+  transform: translateY(1px);
 }
