@@ -14,7 +14,7 @@ export function SectionRow({ title, children, viewAllHref = "#" }: SectionRowPro
   function scrollBy(direction: -1 | 1) {
     const node = scrollerRef.current;
     if (!node) return;
-    node.scrollBy({ left: direction * Math.min(node.clientWidth * 0.8, 420), behavior: "smooth" });
+    node.scrollBy({ left: direction * Math.min(node.clientWidth * 0.75, 320), behavior: "smooth" });
   }
 
   return (
@@ -34,7 +34,7 @@ export function SectionRow({ title, children, viewAllHref = "#" }: SectionRowPro
           type="button"
           aria-label={`Scroll ${title} left`}
           onClick={() => scrollBy(-1)}
-          className="absolute top-1/2 left-0 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-md backdrop-blur md:flex dark:border-white/10 dark:bg-[#121826]/90 dark:text-white"
+          className="absolute top-1/2 left-0 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-base text-slate-700 shadow-md backdrop-blur sm:h-9 sm:w-9 dark:border-white/10 dark:bg-[#121826]/95 dark:text-white"
         >
           ‹
         </button>
@@ -42,14 +42,14 @@ export function SectionRow({ title, children, viewAllHref = "#" }: SectionRowPro
           type="button"
           aria-label={`Scroll ${title} right`}
           onClick={() => scrollBy(1)}
-          className="absolute top-1/2 right-0 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow-md backdrop-blur md:flex dark:border-white/10 dark:bg-[#121826]/90 dark:text-white"
+          className="absolute top-1/2 right-0 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-base text-slate-700 shadow-md backdrop-blur sm:h-9 sm:w-9 dark:border-white/10 dark:bg-[#121826]/95 dark:text-white"
         >
           ›
         </button>
 
         <div
           ref={scrollerRef}
-          className="scrollbar-none flex gap-3 overflow-x-auto px-0 pb-1 md:px-11"
+          className="scrollbar-none flex gap-3 overflow-x-auto px-10 pb-1 sm:px-11"
         >
           {children}
         </div>

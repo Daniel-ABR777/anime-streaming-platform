@@ -156,7 +156,11 @@ export function ProfileMenu() {
 
             <div className="flex items-center justify-between px-3 py-2">
               <span className="flex items-center gap-3 text-sm font-medium text-slate-600 dark:text-slate-300">
-                <MoonIcon className="h-[18px] w-[18px]" />
+                {theme === "dark" ? (
+                  <MoonIcon className="h-[18px] w-[18px]" />
+                ) : (
+                  <SunIcon className="h-[18px] w-[18px]" />
+                )}
                 Theme
               </span>
               <button
@@ -345,6 +349,20 @@ function MoonIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+
+function SunIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <path
+        d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4 4.2 19.8M19.8 4.2l-1.4 1.4"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="12" r="3.8" stroke="currentColor" strokeWidth="1.7" />
     </svg>
   );
 }
