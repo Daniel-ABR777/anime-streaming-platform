@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nova Stream — Sign In",
-  description: "Sign in to Nova Stream and continue watching anime.",
+  title: "AniStream",
+  description: "Watch anime unlimited on AniStream.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

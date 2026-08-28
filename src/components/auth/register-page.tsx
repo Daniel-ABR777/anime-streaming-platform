@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { AuthShell } from "@/components/auth/auth-shell";
 import {
@@ -11,6 +12,7 @@ import {
 } from "@/components/auth/auth-field";
 
 export function RegisterPage() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,6 +26,7 @@ export function RegisterPage() {
       return;
     }
     setError("");
+    router.push("/dashboard");
   }
 
   return (
