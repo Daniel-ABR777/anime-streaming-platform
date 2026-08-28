@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
+import { ProfileMenu } from "@/components/dashboard/profile-menu";
 
 type Theme = "light" | "dark";
 
@@ -28,6 +29,11 @@ function applyTheme(theme: Theme) {
 
 export function DashboardHeader() {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-[#f7f8fc]/85 backdrop-blur-xl dark:border-white/5 dark:bg-[#0b0f1a]/85">
@@ -58,7 +64,7 @@ export function DashboardHeader() {
             />
             <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
               <kbd className="rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-                ⌘ K
+                Ctrl K
               </kbd>
             </span>
           </label>
@@ -79,10 +85,16 @@ export function DashboardHeader() {
           <button
             type="button"
             onClick={() => applyTheme(theme === "dark" ? "light" : "dark")}
-            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={
+              !mounted
+                ? "Toggle color theme"
+                : theme === "dark"
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+            }
             className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-violet-300 hover:text-violet-600 dark:border-white/10 dark:bg-[#121826] dark:text-slate-300 dark:hover:text-violet-300"
           >
-            {theme === "dark" ? (
+            {!mounted || theme === "dark" ? (
               <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" aria-hidden="true">
                 <path
                   d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4 4.2 19.8M19.8 4.2l-1.4 1.4"
@@ -122,15 +134,7 @@ export function DashboardHeader() {
             <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-violet-500 ring-2 ring-white dark:ring-[#0b0f1a]" />
           </button>
 
-          <button
-            type="button"
-            aria-label="Account menu"
-            className="ml-0.5 h-10 w-10 overflow-hidden rounded-full border-2 border-violet-400/50 bg-gradient-to-br from-violet-500 to-fuchsia-600"
-          >
-            <span className="flex h-full w-full items-center justify-center text-xs font-bold text-white">
-              A
-            </span>
-          </button>
+          <ProfileMenu />
         </div>
       </div>
     </header>
