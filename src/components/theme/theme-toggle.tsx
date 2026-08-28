@@ -17,6 +17,19 @@ function getServerSnapshot(): Theme {
   return "dark";
 }
 
+function subscribeMounted(onStoreChange: () => void) {
+  queueMicrotask(onStoreChange);
+  return () => {};
+}
+
+function getMountedSnapshot() {
+  return true;
+}
+
+function getMountedServerSnapshot() {
+  return false;
+}
+
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
   if (theme === "light") root.classList.remove("dark");
@@ -27,6 +40,11 @@ function applyTheme(theme: Theme) {
 
 export function ThemeToggle() {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const mounted = useSyncExternalStore(
+    subscribeMounted,
+    getMountedSnapshot,
+    getMountedServerSnapshot,
+  );
 
   function toggle() {
     applyTheme(theme === "dark" ? "light" : "dark");
@@ -36,10 +54,16 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-      className="fixed top-5 right-5 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/70 text-violet-700 shadow-lg backdrop-blur-md transition hover:scale-105 dark:border-violet-400/30 dark:bg-[#120a28]/70 dark:text-violet-200"
+      aria-label={
+        !mounted
+          ? "Toggle color theme"
+          : theme === "dark"
+            ? "Switch to light mode"
+            : "Switch to dark mode"
+      }
+      className="fixed top-3 right-3 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/70 text-violet-700 shadow-lg backdrop-blur-md transition hover:scale-105 sm:top-5 sm:right-5 sm:h-11 sm:w-11 dark:border-violet-400/30 dark:bg-[#120a28]/70 dark:text-violet-200"
     >
-      {theme === "dark" ? (
+      {!mounted || theme === "dark" ? (
         <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
           <path
             d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4 4.2 19.8M19.8 4.2l-1.4 1.4"
