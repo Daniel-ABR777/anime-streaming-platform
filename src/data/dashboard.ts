@@ -47,7 +47,6 @@ export type RecentUpdate = {
   accent: string;
 };
 
-/** Only one featured slide is available (dashboard-dark / dashboard-light). */
 export const featuredSlides: FeaturedSlide[] = [
   {
     id: "demon-slayer",
@@ -57,6 +56,42 @@ export const featuredSlides: FeaturedSlide[] = [
     episodeLabel: "Episode 10",
     description:
       "Tanjiro and the Hashira face the looming threat of a new demon uprising. As bonds are tested and swords drawn, the battle for the future of the Demon Slayer Corps begins.",
+  },
+  {
+    id: "solo-leveling",
+    title: "Solo Leveling",
+    badge: "Featured",
+    meta: "TV • 2025 • Action, Fantasy",
+    episodeLabel: "Episode 8",
+    description:
+      "Sung Jinwoo rises from the weakest hunter to an unstoppable force. Every dungeon raid pushes him closer to the truth behind the System—and the shadows that answer only to him.",
+  },
+  {
+    id: "jjk",
+    title: "Jujutsu Kaisen",
+    badge: "Featured",
+    meta: "TV • 2023 • Action, Supernatural",
+    episodeLabel: "Episode 17",
+    description:
+      "In a world where curses thrive on fear, Yuji Itadori and his allies race to stop a catastrophe. Loyalties fracture as ancient powers awaken beneath Shibuya.",
+  },
+  {
+    id: "frieren",
+    title: "Frieren: Beyond Journey's End",
+    badge: "Featured",
+    meta: "TV • 2023 • Fantasy, Slice of Life",
+    episodeLabel: "Episode 15",
+    description:
+      "After the hero's party disbands, the elf mage Frieren begins a new journey—to understand humanity, memory, and the quiet magic of time itself.",
+  },
+  {
+    id: "one-piece",
+    title: "One Piece",
+    badge: "Featured",
+    meta: "TV • 2024 • Adventure, Fantasy",
+    episodeLabel: "Episode 1110",
+    description:
+      "Luffy and the Straw Hats storm Egghead Island as world-shaking secrets surface. The next era of pirates begins with a battle that could rewrite history.",
   },
 ];
 

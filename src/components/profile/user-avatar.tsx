@@ -10,13 +10,13 @@ type UserAvatarProps = {
 const sizeMap = {
   sm: "h-10 w-10",
   md: "h-16 w-16",
-  lg: "h-28 w-28",
+  lg: "h-28 w-28 sm:h-32 sm:w-32",
 } as const;
 
 const sizePx = {
   sm: 40,
   md: 64,
-  lg: 112,
+  lg: 128,
 } as const;
 
 export function UserAvatar({

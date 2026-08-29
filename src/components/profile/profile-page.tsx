@@ -8,7 +8,7 @@ export function ProfilePage() {
     <div className="min-h-dvh bg-[#f4f6fb] text-slate-900 dark:bg-[#0b0f1a] dark:text-white">
       <ProfileHeader />
       <ProfileTabProvider>
-        <main className="mx-auto flex max-w-[1440px] flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6 lg:flex-row lg:items-stretch lg:px-8">
+        <main className="mx-auto flex max-w-[1440px] flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6 lg:flex-row lg:items-start lg:px-8">
           <ProfileSidebar />
           <ProfileContent />
         </main>

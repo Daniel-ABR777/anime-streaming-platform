@@ -109,6 +109,17 @@ body {
   display: none;
 }
 
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Profile */
 .profile-panel {
   background: rgb(255 255 255 / 0.95);

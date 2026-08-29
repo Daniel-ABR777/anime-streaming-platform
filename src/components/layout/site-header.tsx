@@ -1,8 +1,10 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
+  FormEvent,
+  Suspense,
   useEffect,
   useId,
   useRef,
@@ -20,12 +22,35 @@ import {
 type MenuId = "genres" | "season" | "search" | "mobile" | null;
 
 export function SiteHeader() {
+  return (
+    <Suspense fallback={<HeaderShell />}>
+      <SiteHeaderInner />
+    </Suspense>
+  );
+}
+
+function HeaderShell() {
+  return (
+    <header className="sticky top-0 z-50 h-16 border-b border-slate-200/80 bg-white/90 dark:border-white/5 dark:bg-[#0b0f1a]/90" />
+  );
+}
+
+function SiteHeaderInner() {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [openMenu, setOpenMenu] = useState<MenuId>(null);
   const [query, setQuery] = useState("");
   const headerRef = useRef<HTMLElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
   const searchId = useId();
+
+  useEffect(() => {
+    if (pathname === "/search") {
+      setQuery(searchParams.get("q") ?? "");
+    }
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     function onPointerDown(event: MouseEvent) {
@@ -43,7 +68,12 @@ export function SiteHeader() {
 
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        searchInputRef.current?.focus();
+        if (window.matchMedia("(min-width: 1024px)").matches) {
+          searchInputRef.current?.focus();
+        } else {
+          setOpenMenu("search");
+          window.setTimeout(() => mobileSearchRef.current?.focus(), 0);
+        }
       }
     }
 
@@ -66,6 +96,14 @@ export function SiteHeader() {
 
   function toggleMenu(id: Exclude<MenuId, null>) {
     setOpenMenu((current) => (current === id ? null : id));
+  }
+
+  function goToSearch(event?: FormEvent) {
+    event?.preventDefault();
+    const next = query.trim();
+    if (!next) return;
+    setOpenMenu(null);
+    router.push(`/search?q=${encodeURIComponent(next)}`);
   }
 
   return (
@@ -102,7 +140,10 @@ export function SiteHeader() {
               key={link.label}
               href={link.href}
               label={link.label}
-              active={link.href === "/" && pathname === "/"}
+              active={
+                (link.href === "/" && pathname === "/") ||
+                (link.href === "/browse" && pathname.startsWith("/browse"))
+              }
             />
           ))}
           <HeaderDropdown
@@ -118,7 +159,12 @@ export function SiteHeader() {
             items={seasonLinks}
           />
           {desktopNav.slice(2).map((link) => (
-            <NavLink key={link.label} href={link.href} label={link.label} />
+            <NavLink
+              key={link.label}
+              href={link.href}
+              label={link.label}
+              active={pathname === link.href}
+            />
           ))}
         </nav>
 
@@ -131,7 +177,13 @@ export function SiteHeader() {
             <SearchIcon />
           </IconButton>
 
-          <label htmlFor={searchId} className="relative hidden w-[220px] lg:block xl:w-[260px]">
+          <form
+            onSubmit={goToSearch}
+            className="relative hidden w-[220px] lg:block xl:w-[260px]"
+          >
+            <label htmlFor={searchId} className="sr-only">
+              Search anime
+            </label>
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
               <SearchIcon className="h-4 w-4" />
             </span>
@@ -147,7 +199,7 @@ export function SiteHeader() {
             <kbd className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-slate-400 dark:border-white/10 dark:bg-[#0f121a] dark:text-slate-500">
               Ctrl K
             </kbd>
-          </label>
+          </form>
 
           <IconButton label="Favorites" href="/profile" className="text-slate-600 dark:text-slate-200">
             <HeartIcon />
@@ -163,11 +215,15 @@ export function SiteHeader() {
 
       {openMenu === "search" ? (
         <div className="border-t border-slate-200 px-4 py-3 lg:hidden dark:border-white/5">
-          <label htmlFor={`${searchId}-mobile`} className="relative block">
+          <form onSubmit={goToSearch} className="relative">
+            <label htmlFor={`${searchId}-mobile`} className="sr-only">
+              Search anime
+            </label>
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
               <SearchIcon className="h-4 w-4" />
             </span>
             <input
+              ref={mobileSearchRef}
               id={`${searchId}-mobile`}
               type="search"
               value={query}
@@ -176,7 +232,7 @@ export function SiteHeader() {
               autoFocus
               className="h-11 w-full rounded-xl border border-slate-200 bg-slate-100 pr-3 pl-9 text-sm text-slate-800 outline-none dark:border-white/8 dark:bg-[#151821] dark:text-white"
             />
-          </label>
+          </form>
         </div>
       ) : null}
 

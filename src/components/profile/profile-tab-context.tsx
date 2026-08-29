@@ -2,7 +2,15 @@
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
-export type ProfileTabId = "history" | "watchlist" | "favorites" | "settings";
+export type ProfileTabId =
+  | "overview"
+  | "profile"
+  | "history"
+  | "continue"
+  | "watchlist"
+  | "favorites"
+  | "notifications"
+  | "settings";
 
 type ProfileTabContextValue = {
   tab: ProfileTabId;
@@ -12,7 +20,7 @@ type ProfileTabContextValue = {
 const ProfileTabContext = createContext<ProfileTabContextValue | null>(null);
 
 export function ProfileTabProvider({ children }: { children: ReactNode }) {
-  const [tab, setTab] = useState<ProfileTabId>("history");
+  const [tab, setTab] = useState<ProfileTabId>("overview");
   const value = useMemo(() => ({ tab, setTab }), [tab]);
   return <ProfileTabContext.Provider value={value}>{children}</ProfileTabContext.Provider>;
 }
