@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ReactNode, useRef, type ReactElement } from "react";
 
 type SectionRowProps = {
@@ -34,12 +35,12 @@ export function SectionRow({
         </h2>
 
         <div className="flex items-center gap-2 sm:gap-2.5">
-          <a
+          <Link
             href={viewAllHref}
             className="text-sm font-medium text-violet-600 transition hover:text-violet-500 dark:text-violet-400 dark:hover:text-violet-300"
           >
             View All
-          </a>
+          </Link>
           <button
             type="button"
             aria-label={`Scroll ${title} left`}

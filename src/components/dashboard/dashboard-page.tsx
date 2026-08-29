@@ -23,31 +23,56 @@ export function DashboardPage() {
       <main className="mx-auto max-w-[1400px] space-y-8 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
         <HeroBanner />
 
-        <SectionRow id="continue" title="Continue Watching" icon={<PlaySectionIcon />}>
+        <SectionRow
+          id="continue"
+          title="Continue Watching"
+          icon={<PlaySectionIcon />}
+          viewAllHref="/profile?tab=continue"
+        >
           {continueWatching.map((item) => (
             <ContinueCard key={item.id} item={item} />
           ))}
         </SectionRow>
 
-        <SectionRow id="trending" title="Trending Now" icon={<FlameIcon />}>
+        <SectionRow
+          id="trending"
+          title="Trending Now"
+          icon={<FlameIcon />}
+          viewAllHref="/trending"
+        >
           {trendingAnime.map((item) => (
             <AnimeCard key={item.id} item={item} />
           ))}
         </SectionRow>
 
-        <SectionRow id="latest" title="Latest Episodes" icon={<BoltIcon />}>
+        <SectionRow
+          id="latest"
+          title="Latest Episodes"
+          icon={<BoltIcon />}
+          viewAllHref="/latest"
+        >
           {latestEpisodes.map((item) => (
             <LatestEpisodeCard key={item.id} item={item} />
           ))}
         </SectionRow>
 
-        <SectionRow id="browse" title="Ongoing Anime" icon={<TvIcon />}>
+        <SectionRow
+          id="browse"
+          title="Ongoing Anime"
+          icon={<TvIcon />}
+          viewAllHref="/browse"
+        >
           {recentlyUpdated.map((item) => (
             <RecentUpdateCard key={item.id} item={item} />
           ))}
         </SectionRow>
 
-        <SectionRow id="movies" title="Anime Movies" icon={<ClapperIcon />}>
+        <SectionRow
+          id="movies"
+          title="Anime Movies"
+          icon={<ClapperIcon />}
+          viewAllHref="/movies"
+        >
           {popularAnime.map((item) => (
             <AnimeCard key={item.id} item={item} />
           ))}

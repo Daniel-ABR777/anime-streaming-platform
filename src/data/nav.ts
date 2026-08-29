@@ -1,9 +1,9 @@
 export const desktopNav = [
   { href: "/", label: "Home" },
   { href: "/browse", label: "Browse" },
-  { href: "/browse?type=Movie", label: "Movies" },
-  { href: "/#trending", label: "Trending" },
-  { href: "/#latest", label: "Latest" },
+  { href: "/movies", label: "Movies" },
+  { href: "/trending", label: "Trending" },
+  { href: "/latest", label: "Latest" },
 ] as const;
 
 export const genreLinks = [
@@ -33,10 +33,10 @@ export const mobileNavGroups = [
     items: [
       { href: "/", label: "Home" },
       { href: "/browse", label: "Browse Anime" },
-      { href: "/#trending", label: "Trending" },
-      { href: "/#latest", label: "Latest Episodes" },
-      { href: "/#browse", label: "Ongoing" },
-      { href: "/browse?type=Movie", label: "Movies" },
+      { href: "/trending", label: "Trending" },
+      { href: "/latest", label: "Latest Episodes" },
+      { href: "/browse", label: "Ongoing" },
+      { href: "/movies", label: "Movies" },
       { href: "/search", label: "Search" },
     ],
   },
