@@ -95,9 +95,9 @@ body {
 }
 
 .dark .dash-card {
-  background: rgb(18 24 38 / 0.95);
+  background: rgb(27 27 34 / 0.92);
   border: 1px solid rgb(255 255 255 / 0.06);
-  box-shadow: 0 10px 28px rgb(0 0 0 / 0.28);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.35);
 }
 
 .scrollbar-none {

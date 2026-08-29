@@ -171,9 +171,10 @@ function WatchHistoryPanel() {
           >
             <Poster
               title={item.title}
-              accent={item.accent}
+              orientation="portrait"
               compact
               className="h-16 w-16 shrink-0 rounded-xl"
+              sizes="64px"
             />
             <div className="min-w-0 flex-1">
               <h3 className="truncate text-sm font-bold text-slate-900 dark:text-white">
@@ -235,9 +236,10 @@ function SimpleListPanel({
         >
           <Poster
             title={item.title}
-            accent={item.accent}
+            orientation="portrait"
             compact
             className="h-16 w-16 shrink-0 rounded-xl"
+            sizes="64px"
           />
           <div className="min-w-0 flex-1">
             <h3 className="truncate text-sm font-bold text-slate-900 dark:text-white">{item.title}</h3>

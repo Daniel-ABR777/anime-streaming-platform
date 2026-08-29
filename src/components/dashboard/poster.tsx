@@ -1,32 +1,36 @@
+import Image from "next/image";
+import cardLength from "@/imgs/card-length.jpg";
+import cardWidth from "@/imgs/card-width.jpg";
+
+export type PosterOrientation = "portrait" | "landscape";
+
 type PosterProps = {
   title: string;
-  accent: string;
+  /** portrait → card-length.jpg (taller); landscape → card-width.jpg (wider) */
+  orientation?: PosterOrientation;
+  accent?: string;
   className?: string;
   compact?: boolean;
+  sizes?: string;
 };
 
-export function Poster({ title, accent, className = "", compact = false }: PosterProps) {
-  const initials = title
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("");
+export function Poster({
+  title,
+  orientation = "portrait",
+  className = "",
+  sizes = "(max-width: 640px) 40vw, 200px",
+}: PosterProps) {
+  const src = orientation === "landscape" ? cardWidth : cardLength;
 
   return (
-    <div
-      className={`relative overflow-hidden bg-gradient-to-br ${accent} ${className}`}
-      aria-hidden="true"
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.22),transparent_45%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.55),transparent_55%)]" />
-      <div
-        className={`absolute inset-0 flex items-center justify-center font-black tracking-wide text-white/90 ${
-          compact ? "text-lg" : "text-2xl"
-        }`}
-      >
-        {initials}
-      </div>
+    <div className={`relative overflow-hidden bg-slate-900 ${className}`}>
+      <Image
+        src={src}
+        alt={title}
+        fill
+        sizes={sizes}
+        className="object-cover"
+      />
     </div>
   );
 }

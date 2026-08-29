@@ -7,7 +7,6 @@ import {
   useId,
   useRef,
   useState,
-  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { ProfileMenu } from "@/components/dashboard/profile-menu";
@@ -17,23 +16,11 @@ import {
   mobileNavGroups,
   seasonLinks,
 } from "@/data/nav";
-import {
-  applyTheme,
-  getThemeServerSnapshot,
-  getThemeSnapshot,
-  subscribeTheme,
-} from "@/lib/theme";
 
 type MenuId = "genres" | "season" | "search" | "mobile" | null;
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
-  const mounted = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
   const [openMenu, setOpenMenu] = useState<MenuId>(null);
   const [query, setQuery] = useState("");
   const headerRef = useRef<HTMLElement>(null);
@@ -43,12 +30,21 @@ export function SiteHeader() {
   useEffect(() => {
     function onPointerDown(event: MouseEvent) {
       if (!headerRef.current?.contains(event.target as Node)) {
-        setOpenMenu(null);
+        setOpenMenu((current) =>
+          current === "genres" || current === "season" || current === "mobile" || current === "search"
+            ? null
+            : current,
+        );
       }
     }
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setOpenMenu(null);
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchInputRef.current?.focus();
+      }
     }
 
     document.addEventListener("mousedown", onPointerDown);
@@ -65,12 +61,6 @@ export function SiteHeader() {
       return () => {
         document.body.style.overflow = "";
       };
-    }
-  }, [openMenu]);
-
-  useEffect(() => {
-    if (openMenu === "search") {
-      searchInputRef.current?.focus();
     }
   }, [openMenu]);
 
@@ -132,70 +122,49 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-1 sm:gap-1.5">
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <IconButton
             label="Search"
-            color="text-sky-500"
-            className="lg:hidden"
+            className="text-slate-500 lg:hidden dark:text-slate-300"
             onClick={() => toggleMenu("search")}
           >
             <SearchIcon />
           </IconButton>
 
-          <span className="hidden lg:contents">
-            {openMenu === "search" ? (
-              <label htmlFor={searchId} className="relative block w-56 xl:w-64">
-                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sky-500">
-                  <SearchIcon className="h-4 w-4" />
-                </span>
-                <input
-                  ref={searchInputRef}
-                  id={searchId}
-                  type="search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search anime..."
-                  className="h-10 w-full rounded-full border border-slate-200 bg-white pr-3 pl-9 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-500/20 dark:border-white/10 dark:bg-[#121826] dark:text-white"
-                />
-              </label>
-            ) : (
-              <IconButton label="Search" color="text-sky-500" onClick={() => toggleMenu("search")}>
-                <SearchIcon />
-              </IconButton>
-            )}
+          <label htmlFor={searchId} className="relative hidden w-[220px] lg:block xl:w-[260px]">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+              <SearchIcon className="h-4 w-4" />
+            </span>
+            <input
+              ref={searchInputRef}
+              id={searchId}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search anime..."
+              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-100 pr-16 pl-9 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/15 dark:border-white/8 dark:bg-[#151821] dark:text-white dark:placeholder:text-slate-500"
+            />
+            <kbd className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-slate-400 dark:border-white/10 dark:bg-[#0f121a] dark:text-slate-500">
+              Ctrl K
+            </kbd>
+          </label>
 
-            <IconButton label="Favorites" color="text-rose-500" href="/profile">
-              <HeartIcon />
-            </IconButton>
+          <IconButton label="Favorites" href="/profile" className="text-slate-600 dark:text-slate-200">
+            <HeartIcon />
+          </IconButton>
 
-            <IconButton label="Notifications" color="text-amber-500" badge>
-              <BellIcon />
-            </IconButton>
+          <IconButton label="Notifications" badgeCount={3} className="text-slate-600 dark:text-slate-200">
+            <BellIcon />
+          </IconButton>
 
-            <button
-              type="button"
-              onClick={() => applyTheme(theme === "dark" ? "light" : "dark")}
-              aria-label={
-                !mounted
-                  ? "Toggle color theme"
-                  : theme === "dark"
-                    ? "Switch to light mode"
-                    : "Switch to dark mode"
-              }
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-violet-500 transition hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-white/5"
-            >
-              {!mounted || theme === "dark" ? <SunIcon /> : <MoonIcon />}
-            </button>
-          </span>
-
-          <ProfileMenu showChevron={false} />
+          <ProfileMenu showChevron />
         </div>
       </div>
 
       {openMenu === "search" ? (
         <div className="border-t border-slate-200 px-4 py-3 lg:hidden dark:border-white/5">
           <label htmlFor={`${searchId}-mobile`} className="relative block">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sky-500">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
               <SearchIcon className="h-4 w-4" />
             </span>
             <input
@@ -205,7 +174,7 @@ export function SiteHeader() {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search anime..."
               autoFocus
-              className="h-11 w-full rounded-full border border-slate-200 bg-white pr-3 pl-9 text-sm text-slate-800 outline-none dark:border-white/10 dark:bg-[#121826] dark:text-white"
+              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-100 pr-3 pl-9 text-sm text-slate-800 outline-none dark:border-white/8 dark:bg-[#151821] dark:text-white"
             />
           </label>
         </div>
@@ -347,28 +316,28 @@ function HeaderDropdown({
 
 function IconButton({
   label,
-  color,
   children,
   onClick,
   href,
-  badge = false,
+  badgeCount,
   className = "",
 }: {
   label: string;
-  color: string;
   children: ReactNode;
   onClick?: () => void;
   href?: string;
-  badge?: boolean;
+  badgeCount?: number;
   className?: string;
 }) {
-  const classes = `relative inline-flex h-10 w-10 items-center justify-center rounded-full ${color} transition hover:bg-slate-100 dark:hover:bg-white/5 ${className}`;
+  const classes = `relative inline-flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-slate-100 dark:hover:bg-white/5 ${className}`;
 
   const content = (
     <>
       {children}
-      {badge ? (
-        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-[#0b0f1a]" />
+      {typeof badgeCount === "number" ? (
+        <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-violet-500 px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-[#0b0f1a]">
+          {badgeCount}
+        </span>
       ) : null}
     </>
   );
@@ -415,8 +384,13 @@ function SearchIcon({ className = "h-[18px] w-[18px]" }: { className?: string })
 
 function HeartIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="currentColor" aria-hidden="true">
-      <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z" />
+    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" aria-hidden="true">
+      <path
+        d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -431,34 +405,6 @@ function BellIcon() {
         strokeLinejoin="round"
       />
       <path d="M10 18.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" aria-hidden="true">
-      <path
-        d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 7 7 0 1 0 20.5 14.2Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function SunIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" aria-hidden="true">
-      <path
-        d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4 4.2 19.8M19.8 4.2l-1.4 1.4"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
-      <circle cx="12" cy="12" r="3.8" stroke="currentColor" strokeWidth="1.7" />
     </svg>
   );
 }
