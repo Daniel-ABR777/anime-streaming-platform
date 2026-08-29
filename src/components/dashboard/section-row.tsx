@@ -3,12 +3,13 @@
 import { ReactNode, useRef } from "react";
 
 type SectionRowProps = {
+  id?: string;
   title: string;
   children: ReactNode;
   viewAllHref?: string;
 };
 
-export function SectionRow({ title, children, viewAllHref = "#" }: SectionRowProps) {
+export function SectionRow({ id, title, children, viewAllHref = "#" }: SectionRowProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   function scrollBy(direction: -1 | 1) {
@@ -18,7 +19,7 @@ export function SectionRow({ title, children, viewAllHref = "#" }: SectionRowPro
   }
 
   return (
-    <section className="space-y-3">
+    <section id={id} className="scroll-mt-20 space-y-3">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-bold text-slate-900 sm:text-lg dark:text-white">{title}</h2>
         <a

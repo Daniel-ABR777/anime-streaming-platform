@@ -23,32 +23,32 @@ export function DashboardPage() {
       <main className="mx-auto max-w-[1400px] space-y-7 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
         <HeroBanner />
 
-        <SectionRow title="Continue Watching">
+        <SectionRow id="continue" title="Continue Watching">
           {continueWatching.map((item) => (
             <ContinueCard key={item.id} item={item} />
           ))}
         </SectionRow>
 
-        <SectionRow title="Trending Anime">
+        <SectionRow id="trending" title="Trending Anime">
           {trendingAnime.map((item) => (
             <AnimeCard key={item.id} item={item} />
           ))}
         </SectionRow>
 
-        <SectionRow title="Popular Anime">
+        <SectionRow id="popular" title="Popular Anime">
           {popularAnime.map((item) => (
             <AnimeCard key={item.id} item={item} />
           ))}
         </SectionRow>
 
-        <div className="grid gap-7 lg:grid-cols-2 lg:gap-8">
-          <SectionRow title="Latest Episodes">
+        <div id="browse" className="grid scroll-mt-20 gap-7 lg:grid-cols-2 lg:gap-8">
+          <SectionRow id="latest" title="Latest Episodes">
             {latestEpisodes.map((item) => (
               <LatestEpisodeCard key={item.id} item={item} />
             ))}
           </SectionRow>
 
-          <SectionRow title="Recently Updated">
+          <SectionRow id="movies" title="Recently Updated">
             {recentlyUpdated.map((item) => (
               <RecentUpdateCard key={item.id} item={item} />
             ))}

@@ -45,7 +45,7 @@ const menuItems = [
 
 type MenuPosition = { top: number; right: number };
 
-export function ProfileMenu() {
+export function ProfileMenu({ showChevron = true }: { showChevron?: boolean }) {
   const router = useRouter();
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const [open, setOpen] = useState(false);
@@ -200,22 +200,24 @@ export function ProfileMenu() {
         <span className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-[#2a1b45] ring-[2.5px] ring-violet-500">
           <AvatarArt />
         </span>
-        <svg
-          viewBox="0 0 20 20"
-          className={`h-4 w-4 text-slate-400 transition duration-200 dark:text-slate-300 ${
-            open ? "rotate-180" : ""
-          }`}
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M5 7.5 10 12.5 15 7.5"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        {showChevron ? (
+          <svg
+            viewBox="0 0 20 20"
+            className={`h-4 w-4 text-slate-400 transition duration-200 dark:text-slate-300 ${
+              open ? "rotate-180" : ""
+            }`}
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M5 7.5 10 12.5 15 7.5"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : null}
       </button>
       {menu}
     </div>
