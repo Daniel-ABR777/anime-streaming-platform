@@ -51,17 +51,17 @@ export const mobileNavGroups = [
   {
     id: "library",
     items: [
-      { href: "/profile", label: "My Watchlist" },
-      { href: "/profile", label: "Favorites" },
-      { href: "/#continue", label: "Continue Watching" },
-      { href: "/profile", label: "Watch History" },
-      { href: "/profile", label: "Notifications" },
+      { href: "/profile?tab=watchlist", label: "My Watchlist" },
+      { href: "/profile?tab=favorites", label: "Favorites" },
+      { href: "/profile?tab=continue", label: "Continue Watching" },
+      { href: "/profile?tab=history", label: "Watch History" },
+      { href: "/profile?tab=notifications", label: "Notifications" },
     ],
   },
   {
     id: "info",
     items: [
-      { href: "/profile", label: "Settings" },
+      { href: "/profile?tab=settings", label: "Settings" },
       { href: "/#about", label: "About" },
       { href: "/#contact", label: "Contact" },
     ],

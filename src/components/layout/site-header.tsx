@@ -12,6 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import { ProfileMenu } from "@/components/dashboard/profile-menu";
+import { NotificationsMenu } from "@/components/layout/notifications-menu";
 import {
   desktopNav,
   genreLinks,
@@ -205,9 +206,7 @@ function SiteHeaderInner() {
             <HeartIcon />
           </IconButton>
 
-          <IconButton label="Notifications" badgeCount={3} className="text-slate-600 dark:text-slate-200">
-            <BellIcon />
-          </IconButton>
+          <NotificationsMenu />
 
           <ProfileMenu showChevron />
         </div>
@@ -447,20 +446,6 @@ function HeartIcon() {
         strokeWidth="1.7"
         strokeLinejoin="round"
       />
-    </svg>
-  );
-}
-
-function BellIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" aria-hidden="true">
-      <path
-        d="M6.5 9.5a5.5 5.5 0 0 1 11 0c0 4.2 1.5 5.5 1.5 5.5H5s1.5-1.3 1.5-5.5Z"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-      <path d="M10 18.5a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
     </svg>
   );
 }

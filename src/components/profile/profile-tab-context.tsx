@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type ProfileTabId =
   | "overview"
@@ -12,6 +21,17 @@ export type ProfileTabId =
   | "notifications"
   | "settings";
 
+const VALID_TABS: readonly ProfileTabId[] = [
+  "overview",
+  "profile",
+  "history",
+  "continue",
+  "watchlist",
+  "favorites",
+  "notifications",
+  "settings",
+] as const;
+
 type ProfileTabContextValue = {
   tab: ProfileTabId;
   setTab: (tab: ProfileTabId) => void;
@@ -19,9 +39,40 @@ type ProfileTabContextValue = {
 
 const ProfileTabContext = createContext<ProfileTabContextValue | null>(null);
 
+export function isProfileTabId(value: string | null | undefined): value is ProfileTabId {
+  return !!value && (VALID_TABS as readonly string[]).includes(value);
+}
+
 export function ProfileTabProvider({ children }: { children: ReactNode }) {
-  const [tab, setTab] = useState<ProfileTabId>("overview");
-  const value = useMemo(() => ({ tab, setTab }), [tab]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+  const [tab, setTabState] = useState<ProfileTabId>(
+    isProfileTabId(tabParam) ? tabParam : "overview",
+  );
+
+  useEffect(() => {
+    if (isProfileTabId(tabParam)) {
+      setTabState(tabParam);
+    }
+  }, [tabParam]);
+
+  const setTab = useCallback(
+    (next: ProfileTabId) => {
+      setTabState(next);
+      const params = new URLSearchParams(searchParams.toString());
+      if (next === "overview") {
+        params.delete("tab");
+      } else {
+        params.set("tab", next);
+      }
+      const query = params.toString();
+      router.replace(query ? `/profile?${query}` : "/profile", { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const value = useMemo(() => ({ tab, setTab }), [tab, setTab]);
   return <ProfileTabContext.Provider value={value}>{children}</ProfileTabContext.Provider>;
 }
 

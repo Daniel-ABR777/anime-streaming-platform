@@ -14,13 +14,13 @@ import { createPortal } from "react-dom";
 import { UserAvatar } from "@/components/profile/user-avatar";
 
 const menuItems = [
-  { href: "/profile", label: "My Profile" },
-  { href: "/#continue", label: "Continue Watching" },
-  { href: "/profile", label: "Watchlist" },
-  { href: "/profile", label: "Favorites" },
-  { href: "/profile", label: "Watch History" },
-  { href: "/profile", label: "Notifications" },
-  { href: "/profile", label: "Settings" },
+  { href: "/profile?tab=profile", label: "My Profile" },
+  { href: "/profile?tab=continue", label: "Continue Watching" },
+  { href: "/profile?tab=watchlist", label: "Watchlist" },
+  { href: "/profile?tab=favorites", label: "Favorites" },
+  { href: "/profile?tab=history", label: "Watch History" },
+  { href: "/profile?tab=notifications", label: "Notifications" },
+  { href: "/profile?tab=settings", label: "Settings" },
 ] as const;
 
 type MenuPosition = { top: number; right: number };

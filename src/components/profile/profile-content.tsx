@@ -1,11 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
+import { Pagination } from "@/components/catalog/catalog-cards";
 import { Poster } from "@/components/dashboard/poster";
 import { UserAvatar } from "@/components/profile/user-avatar";
 import { useProfileTab } from "@/components/profile/profile-tab-context";
 import bannerImage from "@/imgs/banner.jpg";
+import {
+  notifications,
+  unreadCount,
+} from "@/data/notifications";
 import {
   profileBadges,
   profileContinueWatching,
@@ -13,6 +18,9 @@ import {
   profileUser,
   profileWatchlist,
   watchHistory,
+  type ContinueWatchItem,
+  type WatchHistoryItem,
+  type WatchlistItem,
 } from "@/data/profile";
 import {
   applyTheme,
@@ -20,6 +28,13 @@ import {
   getThemeSnapshot,
   subscribeTheme,
 } from "@/lib/theme";
+
+const CONTINUE_PAGE_SIZE = 8;
+const HISTORY_PAGE_SIZE = 6;
+const POSTER_PAGE_SIZE = 9;
+const OVERVIEW_CONTINUE = 4;
+const OVERVIEW_HISTORY = 3;
+const OVERVIEW_POSTERS = 3;
 
 export function ProfileContent() {
   const { tab, setTab } = useProfileTab();
@@ -29,28 +44,53 @@ export function ProfileContent() {
       <div className="min-w-0 flex-1 space-y-5">
         <ProfileBanner />
 
-        {(tab === "overview" || tab === "continue") && <ContinueWatchingSection />}
-        {(tab === "overview" || tab === "history") && <WatchHistorySection />}
-        {(tab === "overview" || tab === "watchlist" || tab === "favorites") && (
-          <div className="grid gap-5 md:grid-cols-2">
-            {(tab === "overview" || tab === "watchlist") && (
+        {tab === "overview" ? (
+          <>
+            <ContinueWatchingSection
+              mode="preview"
+              onViewAll={() => setTab("continue")}
+            />
+            <WatchHistorySection
+              mode="preview"
+              onViewAll={() => setTab("history")}
+            />
+            <div className="grid gap-5 md:grid-cols-2">
               <PosterShelf
                 title="My Watchlist"
                 items={profileWatchlist}
                 icon="bookmark"
+                mode="preview"
                 onViewAll={() => setTab("watchlist")}
               />
-            )}
-            {(tab === "overview" || tab === "favorites") && (
               <PosterShelf
                 title="Favorites"
                 items={profileFavorites}
                 icon="heart"
+                mode="preview"
                 onViewAll={() => setTab("favorites")}
               />
-            )}
-          </div>
-        )}
+            </div>
+          </>
+        ) : null}
+
+        {tab === "continue" ? <ContinueWatchingSection mode="full" /> : null}
+        {tab === "history" ? <WatchHistorySection mode="full" /> : null}
+        {tab === "watchlist" ? (
+          <PosterShelf
+            title="My Watchlist"
+            items={profileWatchlist}
+            icon="bookmark"
+            mode="full"
+          />
+        ) : null}
+        {tab === "favorites" ? (
+          <PosterShelf
+            title="Favorites"
+            items={profileFavorites}
+            icon="heart"
+            mode="full"
+          />
+        ) : null}
 
         {tab === "profile" && <ProfileDetailsPanel />}
         {tab === "notifications" && <NotificationsPanel />}
@@ -156,89 +196,165 @@ function BannerStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ContinueWatchingSection() {
+function ContinueWatchingSection({
+  mode,
+  onViewAll,
+}: {
+  mode: "preview" | "full";
+  onViewAll?: () => void;
+}) {
+  const [page, setPage] = useState(1);
+  const isFull = mode === "full";
+  const totalPages = Math.max(1, Math.ceil(profileContinueWatching.length / CONTINUE_PAGE_SIZE));
+
+  const items = useMemo(() => {
+    if (!isFull) return profileContinueWatching.slice(0, OVERVIEW_CONTINUE);
+    const start = (page - 1) * CONTINUE_PAGE_SIZE;
+    return profileContinueWatching.slice(start, start + CONTINUE_PAGE_SIZE);
+  }, [isFull, page]);
+
   return (
-    <section className="profile-panel rounded-2xl p-4 sm:p-5">
-      <SectionHeader title="Continue Watching" />
-      <div className="scrollbar-none mt-4 flex gap-3 overflow-x-auto pb-1">
-        {profileContinueWatching.map((item) => (
-          <article
-            key={item.id}
-            className="w-[220px] shrink-0 overflow-hidden rounded-xl border border-slate-200/80 bg-slate-50/80 dark:border-white/8 dark:bg-white/[0.03] sm:w-[240px]"
-          >
-            <div className="group relative">
-              <Poster
-                title={item.title}
-                orientation="landscape"
-                className="aspect-video w-full"
-                sizes="240px"
-              />
-              <button
-                type="button"
-                aria-label={`Continue ${item.title}`}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-slate-900 shadow-lg transition group-hover:scale-105">
-                  <PlayTriangle />
-                </span>
-              </button>
-            </div>
-            <div className="p-3">
-              <h3 className="truncate text-sm font-bold text-slate-900 dark:text-white">
-                {item.title}
-              </h3>
-              <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
-                {item.episode}
-              </p>
-              <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
-                <div
-                  className="h-full rounded-full bg-violet-500"
-                  style={{ width: `${item.progress}%` }}
-                />
-              </div>
-            </div>
-          </article>
-        ))}
+    <section className="profile-panel flex h-[360px] flex-col rounded-2xl p-4 sm:h-[380px] sm:p-5">
+      <SectionHeader
+        title="Continue Watching"
+        onViewAll={isFull ? undefined : onViewAll}
+      />
+      <div className="mt-4 min-h-0 flex-1 overflow-hidden">
+        {isFull ? (
+          <div className="grid h-full grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 lg:grid-cols-4">
+            {items.map((item) => (
+              <ContinueCard key={item.id} item={item} />
+            ))}
+          </div>
+        ) : (
+          <div className="scrollbar-none flex h-full gap-3 overflow-x-auto pb-1">
+            {items.map((item) => (
+              <ContinueCard key={item.id} item={item} fixedWidth />
+            ))}
+          </div>
+        )}
       </div>
+      {isFull && totalPages > 1 ? (
+        <div className="mt-4 shrink-0">
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        </div>
+      ) : null}
     </section>
   );
 }
 
-function WatchHistorySection() {
+function ContinueCard({
+  item,
+  fixedWidth = false,
+}: {
+  item: ContinueWatchItem;
+  fixedWidth?: boolean;
+}) {
   return (
-    <section className="profile-panel rounded-2xl p-4 sm:p-5">
-      <SectionHeader title="Watch History" />
-      <ul className="mt-4 space-y-3">
-        {watchHistory.map((item) => (
-          <li
-            key={item.id}
-            className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 sm:flex-nowrap dark:border-white/6 dark:bg-white/[0.03]"
-          >
-            <Poster
-              title={item.title}
-              orientation="portrait"
-              className="h-14 w-14 shrink-0 rounded-lg"
-              sizes="56px"
-            />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="truncate text-sm font-bold text-slate-900 dark:text-white">
-                  {item.title}
-                </h3>
-                <span className="text-xs font-medium text-slate-400">{item.timeAgo}</span>
-              </div>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{item.subtitle}</p>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
-                <div
-                  className="h-full rounded-full bg-violet-500"
-                  style={{ width: `${item.progress}%` }}
-                />
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+    <article
+      className={`overflow-hidden rounded-xl border border-slate-200/80 bg-slate-50/80 dark:border-white/8 dark:bg-white/[0.03] ${
+        fixedWidth ? "w-[220px] shrink-0 sm:w-[240px]" : "min-w-0"
+      }`}
+    >
+      <div className="group relative">
+        <Poster
+          title={item.title}
+          orientation="landscape"
+          className="aspect-video w-full"
+          sizes={fixedWidth ? "240px" : "(max-width: 1024px) 33vw, 220px"}
+        />
+        <button
+          type="button"
+          aria-label={`Continue ${item.title}`}
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white/85 text-slate-900 shadow-lg transition group-hover:scale-105">
+            <PlayTriangle />
+          </span>
+        </button>
+      </div>
+      <div className="p-3">
+        <h3 className="truncate text-sm font-bold text-slate-900 dark:text-white">
+          {item.title}
+        </h3>
+        <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
+          {item.episode}
+        </p>
+        <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
+          <div
+            className="h-full rounded-full bg-violet-500"
+            style={{ width: `${item.progress}%` }}
+          />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function WatchHistorySection({
+  mode,
+  onViewAll,
+}: {
+  mode: "preview" | "full";
+  onViewAll?: () => void;
+}) {
+  const [page, setPage] = useState(1);
+  const isFull = mode === "full";
+  const totalPages = Math.max(1, Math.ceil(watchHistory.length / HISTORY_PAGE_SIZE));
+
+  const items = useMemo(() => {
+    if (!isFull) return watchHistory.slice(0, OVERVIEW_HISTORY);
+    const start = (page - 1) * HISTORY_PAGE_SIZE;
+    return watchHistory.slice(start, start + HISTORY_PAGE_SIZE);
+  }, [isFull, page]);
+
+  return (
+    <section className="profile-panel flex h-[360px] flex-col rounded-2xl p-4 sm:h-[380px] sm:p-5">
+      <SectionHeader
+        title="Watch History"
+        onViewAll={isFull ? undefined : onViewAll}
+      />
+      <div className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
+        <ul className="space-y-3">
+          {items.map((item) => (
+            <HistoryRow key={item.id} item={item} />
+          ))}
+        </ul>
+      </div>
+      {isFull && totalPages > 1 ? (
+        <div className="mt-4 shrink-0">
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        </div>
+      ) : null}
     </section>
+  );
+}
+
+function HistoryRow({ item }: { item: WatchHistoryItem }) {
+  return (
+    <li className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 sm:flex-nowrap dark:border-white/6 dark:bg-white/[0.03]">
+      <Poster
+        title={item.title}
+        orientation="portrait"
+        className="h-14 w-14 shrink-0 rounded-lg"
+        sizes="56px"
+      />
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="truncate text-sm font-bold text-slate-900 dark:text-white">
+            {item.title}
+          </h3>
+          <span className="text-xs font-medium text-slate-400">{item.timeAgo}</span>
+        </div>
+        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{item.subtitle}</p>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
+          <div
+            className="h-full rounded-full bg-violet-500"
+            style={{ width: `${item.progress}%` }}
+          />
+        </div>
+      </div>
+    </li>
   );
 }
 
@@ -246,41 +362,68 @@ function PosterShelf({
   title,
   items,
   icon,
+  mode,
   onViewAll,
 }: {
   title: string;
-  items: typeof profileWatchlist;
+  items: WatchlistItem[];
   icon: "bookmark" | "heart";
-  onViewAll: () => void;
+  mode: "preview" | "full";
+  onViewAll?: () => void;
 }) {
+  const [page, setPage] = useState(1);
+  const isFull = mode === "full";
+  const totalPages = Math.max(1, Math.ceil(items.length / POSTER_PAGE_SIZE));
+
+  const visible = useMemo(() => {
+    if (!isFull) return items.slice(0, OVERVIEW_POSTERS);
+    const start = (page - 1) * POSTER_PAGE_SIZE;
+    return items.slice(start, start + POSTER_PAGE_SIZE);
+  }, [isFull, items, page]);
+
   return (
-    <section className="profile-panel rounded-2xl p-4 sm:p-5">
-      <SectionHeader title={title} onViewAll={onViewAll} />
-      <div className="mt-4 grid grid-cols-3 gap-3">
-        {items.map((item) => (
-          <article key={item.id} className="min-w-0">
-            <div className="relative overflow-hidden rounded-xl">
-              <Poster
-                title={item.title}
-                orientation="portrait"
-                className="aspect-[2/3] w-full"
-                sizes="120px"
-              />
-              <span
-                className={`absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-lg text-white shadow ${
-                  icon === "heart" ? "bg-rose-500/90" : "bg-sky-500/90"
-                }`}
-              >
-                {icon === "heart" ? <HeartFill /> : <BookmarkFill />}
-              </span>
-            </div>
-            <h3 className="mt-2 line-clamp-2 text-xs font-bold text-slate-900 dark:text-white">
-              {item.title}
-            </h3>
-            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{item.type}</p>
-          </article>
-        ))}
+    <section
+      className={`profile-panel flex flex-col rounded-2xl p-4 sm:p-5 ${
+        isFull ? "h-[560px] sm:h-[600px]" : "h-[360px] sm:h-[380px]"
+      }`}
+    >
+      <SectionHeader title={title} onViewAll={isFull ? undefined : onViewAll} />
+      <div className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
+        <div
+          className={`grid gap-3 ${
+            isFull ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" : "grid-cols-3"
+          }`}
+        >
+          {visible.map((item) => (
+            <article key={item.id} className="min-w-0">
+              <div className="relative overflow-hidden rounded-xl">
+                <Poster
+                  title={item.title}
+                  orientation="portrait"
+                  className="aspect-[2/3] w-full"
+                  sizes={isFull ? "(max-width: 1024px) 25vw, 160px" : "120px"}
+                />
+                <span
+                  className={`absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-lg text-white shadow ${
+                    icon === "heart" ? "bg-rose-500/90" : "bg-sky-500/90"
+                  }`}
+                >
+                  {icon === "heart" ? <HeartFill /> : <BookmarkFill />}
+                </span>
+              </div>
+              <h3 className="mt-2 line-clamp-2 text-xs font-bold text-slate-900 dark:text-white">
+                {item.title}
+              </h3>
+              <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{item.type}</p>
+            </article>
+          ))}
+        </div>
       </div>
+      {isFull && totalPages > 1 ? (
+        <div className="mt-4 shrink-0">
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -425,7 +568,7 @@ function SettingRow({ label, value }: { label: string; value: string }) {
 function BadgesCard() {
   return (
     <section className="profile-panel rounded-2xl p-5">
-      <SectionHeader title="Badges" />
+      <h2 className="text-base font-bold text-slate-900 dark:text-white">Badges</h2>
       <div className="mt-4 flex flex-wrap justify-between gap-3">
         {profileBadges.map((badge) => (
           <div key={badge.id} className="flex w-[56px] flex-col items-center gap-1.5 text-center">
@@ -469,26 +612,93 @@ function DetailField({ label, value }: { label: string; value: string }) {
 }
 
 function NotificationsPanel() {
-  const notes = [
-    "New episode of Solo Leveling is available",
-    "Demon Slayer was added to your watchlist recommendations",
-    "Your Premium plan renews in 7 days",
-  ];
-
   return (
-    <section className="profile-panel rounded-2xl p-5">
-      <h2 className="text-lg font-bold text-slate-900 dark:text-white">Notifications</h2>
-      <ul className="mt-4 space-y-2">
-        {notes.map((note) => (
+    <section className="profile-panel rounded-2xl p-5 sm:p-6">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Notifications</h2>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            {unreadCount > 0
+              ? `You have ${unreadCount} unread notification${unreadCount === 1 ? "" : "s"}.`
+              : "You're all caught up."}
+          </p>
+        </div>
+      </div>
+
+      <ul className="divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200/80 dark:divide-white/8 dark:border-white/8">
+        {notifications.map((item) => (
           <li
-            key={note}
-            className="rounded-xl border border-slate-200/80 bg-slate-50/80 px-3 py-3 text-sm text-slate-700 dark:border-white/6 dark:bg-white/[0.03] dark:text-slate-200"
+            key={item.id}
+            className={`flex gap-4 px-4 py-4 ${
+              item.unread ? "bg-violet-500/5 dark:bg-violet-500/10" : "bg-transparent"
+            }`}
           >
-            {note}
+            <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/15 text-violet-600 dark:text-violet-300">
+              <NotificationTypeIcon type={item.type} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">{item.title}</h3>
+                <span className="text-xs font-medium text-slate-400">{item.timeAgo}</span>
+              </div>
+              <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                {item.message}
+              </p>
+              {item.unread ? (
+                <span className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-violet-600 dark:text-violet-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                  Unread
+                </span>
+              ) : null}
+            </div>
           </li>
         ))}
       </ul>
     </section>
+  );
+}
+
+function NotificationTypeIcon({
+  type,
+}: {
+  type: "episode" | "system" | "social" | "promo";
+}) {
+  if (type === "episode") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+        <path d="M8 5.5v13l11-6.5-11-6.5Z" />
+      </svg>
+    );
+  }
+  if (type === "promo") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+        <path
+          d="m12 3.5 2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.4 6.9 19.2l1-5.7-4.1-4 5.7-.8L12 3.5Z"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+  if (type === "social") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+        <path
+          d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M12 8v4l2.5 1.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
   );
 }
 
@@ -502,13 +712,15 @@ function SectionHeader({
   return (
     <div className="flex items-center justify-between gap-3">
       <h2 className="text-base font-bold text-slate-900 dark:text-white">{title}</h2>
-      <button
-        type="button"
-        onClick={onViewAll}
-        className="text-sm font-medium text-violet-600 transition hover:text-violet-500 dark:text-violet-300"
-      >
-        View All
-      </button>
+      {onViewAll ? (
+        <button
+          type="button"
+          onClick={onViewAll}
+          className="text-sm font-medium text-violet-600 transition hover:text-violet-500 dark:text-violet-300"
+        >
+          View All
+        </button>
+      ) : null}
     </div>
   );
 }
